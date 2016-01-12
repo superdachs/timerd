@@ -5,20 +5,31 @@ from daemonize import Daemonize
 import os
 import sys
 import logging
+import datetime
 
 app = "timerd"
-pdir = os.path.join('/tmp', app) 
+pdir = os.path.join('tmp', app) 
 pid = os.path.join(pdir, "%s.pid" % app)
 terminate = False
+if not os.path.exists('var/log'):
+    os.makedirs('var/log')
+if not os.path.exists('tmp/%s' % app):
+    os.makedirs('tmp/%s' % app)
+
 
 logger = logging.getLogger(app)
 logger.setLevel(logging.DEBUG)
 logger.propagate = False
-logfile = logging.FileHandler("/var/log/%s.log" % app, "w")
+logfile = logging.FileHandler("var/log/%s.log" % app, "a")
 logfile.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s %(message)s')
+logfile.setFormatter(formatter)
 logger.addHandler(logfile)
 
 keep_fds = [logfile.stream.fileno()]
+
+configdir = "/etc/timerd.d"
+
 
 def main():
     while not terminate:
